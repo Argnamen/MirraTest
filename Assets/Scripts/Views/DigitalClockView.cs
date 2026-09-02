@@ -10,8 +10,8 @@ namespace ClockApp.Views
     public class DigitalClockView : ClockView
     {
         [SerializeField] private TMP_Text timeText;
-        [SerializeField] private TMP_InputField hoursInput;
-        [SerializeField] private TMP_InputField minutesInput;
+        [SerializeField] private InputField hoursInput;
+        [SerializeField] private InputField minutesInput;
         [SerializeField] private Button editButton;
         [SerializeField] private Button saveButton;
         [SerializeField] private Button cancelButton;

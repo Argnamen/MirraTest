@@ -63,9 +63,6 @@ namespace ClockApp.Views
 
             if (editButton != null)
                 editButton.gameObject.SetActive(!isEditing);
-
-            if (timeText != null)
-                timeText.gameObject.SetActive(!isEditing);
         }
 
         private void OnEditClicked()

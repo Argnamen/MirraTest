@@ -119,14 +119,12 @@ namespace ClockApp.ViewModels
         {
             if (!IsEditMode.Value) return;
 
-            _timeModel.UpdateTime(newTime);
-            CurrentTime.Value = newTime;
+            SetTime(newTime);
         }
 
         public void SetTimeFromDigital(DateTime newTime)
         {
-            _timeModel.UpdateTime(newTime);
-            CurrentTime.Value = newTime;
+            SetTime(newTime);
         }
 
         public void StartDragging()

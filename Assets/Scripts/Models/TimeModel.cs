@@ -1,30 +1,31 @@
 using System;
-using UnityEngine;
 
 namespace ClockApp.Models
 {
     public class TimeModel
     {
-        private DateTime _currentTime;
-        public DateTime CurrentTime
-        {
-            get => _currentTime;
-            set => _currentTime = value;
-        }
+        public DateTime CurrentTime { get; private set; }
 
+        // Пустой конструктор для Zenject
         public TimeModel()
         {
-            _currentTime = DateTime.Now;
+            CurrentTime = DateTime.Now;
+        }
+
+        // Метод для установки начального времени
+        public void SetInitialTime(DateTime time)
+        {
+            CurrentTime = time;
         }
 
         public void UpdateTime(DateTime newTime)
         {
-            _currentTime = newTime;
+            CurrentTime = newTime;
         }
 
         public void Tick(TimeSpan deltaTime)
         {
-            _currentTime = _currentTime.Add(deltaTime);
+            CurrentTime = CurrentTime.Add(deltaTime);
         }
     }
 }

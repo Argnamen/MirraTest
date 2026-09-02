@@ -11,6 +11,7 @@ namespace ClockApp.ViewModels
     {
         private readonly TimeModel _timeModel;
         private readonly ITimeService _timeService;
+        private readonly TimeDataModel _timeDataModel;
         private float _accumulatedTime;
         private bool _isDragging;
 
@@ -19,30 +20,48 @@ namespace ClockApp.ViewModels
         public ObservableProperty<string> ErrorMessage { get; }
         public ObservableProperty<bool> IsEditMode { get; }
         public ObservableProperty<bool> IsDragging { get; }
-
-        // События для синхронизации
-        public event Action<DateTime> OnTimeChangedFromAnalog;
-        public event Action<DateTime> OnTimeChangedFromDigital;
-        public event Action OnDragStarted;
-        public event Action OnDragEnded;
+        public ObservableProperty<bool> IsTimeSynced { get; }
 
         [Inject]
-        public ClockViewModel(TimeModel timeModel, ITimeService timeService)
+        public ClockViewModel(
+            TimeModel timeModel,
+            ITimeService timeService,
+            TimeDataModel timeDataModel)
         {
             _timeModel = timeModel;
             _timeService = timeService;
+            _timeDataModel = timeDataModel;
 
             CurrentTime = new ObservableProperty<DateTime>();
             IsLoading = new ObservableProperty<bool>(false);
             ErrorMessage = new ObservableProperty<string>();
             IsEditMode = new ObservableProperty<bool>(false);
             IsDragging = new ObservableProperty<bool>(false);
-
-            // Подписываемся на изменения времени
-            CurrentTime.OnValueChanged += OnCurrentTimeChanged;
+            IsTimeSynced = new ObservableProperty<bool>(false);
         }
 
         public void Initialize()
+        {
+            // Проверяем, есть ли время из GameScene
+            if (_timeDataModel != null && _timeDataModel.IsTimeLoaded)
+            {
+                // Устанавливаем время в TimeModel
+                _timeModel.SetInitialTime(_timeDataModel.ServerTime);
+
+                // Обновляем CurrentTime
+                CurrentTime.Value = _timeDataModel.ServerTime;
+                IsTimeSynced.Value = true;
+
+                Debug.Log($"Часы инициализированы временем: {_timeDataModel.ServerTime:HH:mm:ss}");
+            }
+            else
+            {
+                // Время не загружено, запрашиваем с сервера
+                RequestTimeFromServer();
+            }
+        }
+
+        public void RequestTimeFromServer()
         {
             _timeService.GetServerTime(
                 onSuccess: (serverTime) =>
@@ -64,7 +83,7 @@ namespace ClockApp.ViewModels
 
         public void Tick()
         {
-            if (!IsEditMode.Value && !IsLoading.Value && !IsDragging.Value)
+            if (!IsEditMode.Value && !IsLoading.Value && !IsDragging.Value && IsTimeSynced.Value)
             {
                 _accumulatedTime += Time.deltaTime;
                 if (_accumulatedTime >= 1f)
@@ -76,10 +95,11 @@ namespace ClockApp.ViewModels
             }
         }
 
-        private void OnCurrentTimeChanged(DateTime newTime)
+        public void SetTime(DateTime newTime)
         {
-            // Автоматически уведомляем все View об изменении
-            Debug.Log($"Время обновлено: {newTime:HH:mm:ss}");
+            _timeModel.UpdateTime(newTime);
+            CurrentTime.Value = newTime;
+            IsTimeSynced.Value = true;
         }
 
         public void SetEditMode(bool isEditing)
@@ -95,43 +115,33 @@ namespace ClockApp.ViewModels
             }
         }
 
-        public void SetTime(DateTime newTime)
+        public void SetTimeFromAnalog(DateTime newTime)
+        {
+            if (!IsEditMode.Value) return;
+
+            _timeModel.UpdateTime(newTime);
+            CurrentTime.Value = newTime;
+        }
+
+        public void SetTimeFromDigital(DateTime newTime)
         {
             _timeModel.UpdateTime(newTime);
             CurrentTime.Value = newTime;
         }
 
-        // Методы для аналоговых часов
-        public void SetTimeFromAnalog(DateTime newTime)
-        {
-            if (!IsEditMode.Value) return;
-
-            SetTime(newTime);
-            OnTimeChangedFromAnalog?.Invoke(newTime);
-        }
-
-        // Методы для цифровых часов
-        public void SetTimeFromDigital(DateTime newTime)
-        {
-            SetTime(newTime);
-            OnTimeChangedFromDigital?.Invoke(newTime);
-        }
-
         public void StartDragging()
         {
             IsDragging.Value = true;
-            OnDragStarted?.Invoke();
         }
 
         public void StopDragging()
         {
             IsDragging.Value = false;
-            OnDragEnded?.Invoke();
         }
 
         public void Dispose()
         {
-            CurrentTime.OnValueChanged -= OnCurrentTimeChanged;
+            // Очистка ресурсов
         }
     }
 }

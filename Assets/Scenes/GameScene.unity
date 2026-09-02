@@ -152,7 +152,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
-  _monoInstallers: []
+  _monoInstallers:
+  - {fileID: 2062821229}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -291,8 +292,8 @@ Canvas:
   m_GameObject: {fileID: 275134966}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 1670478361}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -1092,13 +1093,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 2062821227}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c89796d11b0ef6c47b4d52cf527388fc, type: 3}
+  m_Script: {fileID: 11500000, guid: bdff53aa43ed9df4890db6848bf346a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainSceneAddress: MainScene
-  loadingPanel: {fileID: 260357946}
-  progressBar: {fileID: 2116991091}
-  statusText: {fileID: 2056720218}
 --- !u!114 &2062821230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1108,16 +1105,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 2062821227}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dad6320cc0497af48a53bcffc7e667b5, type: 3}
+  m_Script: {fileID: 11500000, guid: 904612dad70d1fb44b6369136181e434, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   loadingPanel: {fileID: 260357946}
   progressBar: {fileID: 2116991091}
-  statusText: {fileID: 0}
-  progressText: {fileID: 0}
-  retryButton: {fileID: 0}
+  statusText: {fileID: 1517882388}
   mainSceneAddress: MainScene
-  minLoadingTime: 2
 --- !u!1 &2116991089
 GameObject:
   m_ObjectHideFlags: 0

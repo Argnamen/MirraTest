@@ -97,8 +97,18 @@ namespace ClockApp.Views.Components
             // Новое время на основе изменения угла
             DateTime newTime = CalculateTimeFromAngle(_startTime, angleDelta);
 
-            // Обновляем ViewModel
+            if (newTime < _viewModel.CurrentTime.Value)
+            {
+                _startTime = _viewModel.CurrentTime.Value;
+                newTime = CalculateTimeFromAngle(_startTime, angleDelta);
+                _startPointerAngle = currentPointerAngle;
+            }
+
             _viewModel.SetTimeFromAnalog(newTime);
+
+            Debug.Log(newTime.ToString());
+
+            // Обновляем ViewModel
 
             OnTimeChanged?.Invoke(newTime);
         }

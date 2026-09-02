@@ -16,12 +16,7 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 7146126f87a890546ac78acb9b4432f0
-  m_SerializeEntries:
-  - m_GUID: 54b7638d489acc8458b76065ee64f99d
-    m_Address: Assets/AddressableAssets/GameScene.unity
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
+  m_SerializeEntries: []
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 694eb01b1e80e6b4984cf97273953c1e, type: 2}
   m_SchemaSet:

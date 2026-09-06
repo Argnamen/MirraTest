@@ -4,42 +4,47 @@ using UnityEngine.UI;
 using ClockApp.ViewModels;
 using Zenject;
 using TMPro;
+using DG.Tweening;
 
 namespace ClockApp.Views
 {
     public class DigitalClockView : ClockView
     {
         [SerializeField] private TMP_Text timeText;
-        [SerializeField] private InputField hoursInput;
-        [SerializeField] private InputField minutesInput;
-        [SerializeField] private Button editButton;
-        [SerializeField] private Button saveButton;
-        [SerializeField] private Button cancelButton;
+        [SerializeField] private TMP_Text dateText;
         [SerializeField] private GameObject editPanel;
+
+        [SerializeField] private CanvasGroup baseContainer;
+        [SerializeField] private Transform timeContainer;
+        [SerializeField] private Transform dateContainer;
+        [SerializeField] private Transform editContainer;
 
         [Inject]
         public void Construct(ClockViewModel viewModel)
         {
             Initialize(viewModel);
-            SetupUI();
         }
 
-        private void SetupUI()
+        public override void Initialize(ClockViewModel viewModel)
         {
-            if (editButton != null)
-                editButton.onClick.AddListener(OnEditClicked);
+            base.Initialize(viewModel);
 
-            if (saveButton != null)
-                saveButton.onClick.AddListener(OnSaveClicked);
+            StartAnim();
+        }
 
-            if (cancelButton != null)
-                cancelButton.onClick.AddListener(OnCancelClicked);
+        private void StartAnim()
+        {
+            Vector3 startDatePos = dateContainer.transform.localPosition;
+            Vector3 startEditPos = editContainer.transform.localPosition;
 
-            if (hoursInput != null)
-                hoursInput.onEndEdit.AddListener(OnInputEndEdit);
+            dateContainer.transform.localPosition = timeContainer.transform.localPosition;
+            editContainer.transform.localPosition = timeContainer.transform.localPosition;
 
-            if (minutesInput != null)
-                minutesInput.onEndEdit.AddListener(OnInputEndEdit);
+            baseContainer.transform.DORotate(Vector3.zero, 1f);
+            baseContainer.DOFade(1f, 0.8f);
+
+            dateContainer.DOLocalMove(startDatePos, 1f);
+            editContainer.DOLocalMove(startEditPos, 1f);
         }
 
         protected override void OnTimeChanged(DateTime newTime)
@@ -47,84 +52,8 @@ namespace ClockApp.Views
             // Обновляем текстовое отображение
             if (timeText != null)
                 timeText.text = newTime.ToString("HH:mm:ss");
-
-            // Обновляем поля ввода, если они активны
-            if (hoursInput != null && !hoursInput.isFocused)
-                hoursInput.text = newTime.Hour.ToString("00");
-
-            if (minutesInput != null && !minutesInput.isFocused)
-                minutesInput.text = newTime.Minute.ToString("00");
-        }
-
-        protected override void OnEditModeChanged(bool isEditing)
-        {
-            if (editPanel != null)
-                editPanel.SetActive(isEditing);
-
-            if (editButton != null)
-                editButton.gameObject.SetActive(!isEditing);
-        }
-
-        private void OnEditClicked()
-        {
-            ViewModel.SetEditMode(true);
-        }
-
-        private void OnSaveClicked()
-        {
-            if (TryParseTime(out DateTime newTime))
-            {
-                // Используем метод для синхронизации с аналоговыми часами
-                ViewModel.SetTimeFromDigital(newTime);
-                ViewModel.SetEditMode(false);
-            }
-        }
-
-        private void OnCancelClicked()
-        {
-            ViewModel.SetEditMode(false);
-            // Восстанавливаем текущее время
-            OnTimeChanged(ViewModel.CurrentTime.Value);
-        }
-
-        private void OnInputEndEdit(string value)
-        {
-            // Валидация ввода
-            if (int.TryParse(value, out int number))
-            {
-                if (number < 0)
-                {
-                    if (hoursInput != null && hoursInput.isFocused)
-                        hoursInput.text = "00";
-                    else if (minutesInput != null && minutesInput.isFocused)
-                        minutesInput.text = "00";
-                }
-                else if (number > 23 && hoursInput != null && hoursInput.isFocused)
-                {
-                    hoursInput.text = "23";
-                }
-                else if (number > 59 && minutesInput != null && minutesInput.isFocused)
-                {
-                    minutesInput.text = "59";
-                }
-            }
-        }
-
-        private bool TryParseTime(out DateTime time)
-        {
-            time = default;
-
-            if (int.TryParse(hoursInput.text, out int hours) &&
-                int.TryParse(minutesInput.text, out int minutes))
-            {
-                if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60)
-                {
-                    time = ViewModel.CurrentTime.Value.Date.AddHours(hours).AddMinutes(minutes);
-                    return true;
-                }
-            }
-
-            return false;
+            if (dateText != null)
+                dateText.text = newTime.ToString("dd.MM.yyyy"); 
         }
     }
 }

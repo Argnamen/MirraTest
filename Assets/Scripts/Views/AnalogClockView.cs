@@ -77,8 +77,8 @@ namespace ClockApp.Views
         private void UpdateClockHands(DateTime time)
         {
             float secondsRotation = -time.Second * 6f;
-            float minutesRotation = -(time.Minute * 6f + time.Second * 0.1f);
-            float hoursRotation = -((time.Hour % 12) * 30f + time.Minute * 0.5f);
+            float minutesRotation = -(time.Minute * 6f);
+            float hoursRotation = -((time.Hour % 12) * 30f);
 
             if (smoothAnimation && !_isDragging)
             {

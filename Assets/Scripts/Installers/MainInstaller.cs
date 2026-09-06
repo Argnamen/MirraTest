@@ -1,8 +1,10 @@
+using Clock.App.View;
 using ClockApp.Core;
 using ClockApp.Models;
 using ClockApp.Services;
 using ClockApp.ViewModels;
 using ClockApp.Views;
+using System.ComponentModel;
 using UnityEngine;
 using Zenject;
 
@@ -13,6 +15,7 @@ namespace ClockApp.Installers
         [Header("Views")]
         [SerializeField] private AnalogClockView analogClockView;
         [SerializeField] private DigitalClockView digitalClockView;
+        [SerializeField] private EditView editView;
 
         public override void InstallBindings()
         {
@@ -49,6 +52,11 @@ namespace ClockApp.Installers
 
             Container.BindInterfacesAndSelfTo<DigitalClockView>()
                 .FromInstance(digitalClockView)
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<EditView>()
+                .FromInstance(editView)
                 .AsSingle()
                 .NonLazy();
         }

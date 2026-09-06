@@ -1,5 +1,6 @@
 <linker>
   <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="Clock.App.View.EditView" preserve="all" />
     <type fullname="ClockApp.Installers.MainInstaller" preserve="all" />
     <type fullname="ClockApp.Views.AnalogClockView" preserve="all" />
     <type fullname="ClockApp.Views.Components.AngularClockHandDragger" preserve="all" />
@@ -80,6 +81,7 @@
   </assembly>
   <assembly fullname="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="UnityEngine.Canvas" preserve="all" />
+    <type fullname="UnityEngine.CanvasGroup" preserve="all" />
     <type fullname="UnityEngine.CanvasRenderer" preserve="all" />
   </assembly>
   <assembly fullname="Zenject, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">

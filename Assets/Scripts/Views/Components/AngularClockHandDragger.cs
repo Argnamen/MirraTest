@@ -178,17 +178,17 @@ namespace ClockApp.Views.Components
                 case ClockHandType.Hour:
                     // 30 градусов = 1 час
                     float hoursDelta = angleDelta / 30f;
-                    return startTime.AddHours(hoursDelta);
+                    return startTime.AddHours((int)hoursDelta);
 
                 case ClockHandType.Minute:
                     // 6 градусов = 1 минута
                     float minutesDelta = angleDelta / 6f;
-                    return startTime.AddMinutes(minutesDelta);
+                    return startTime.AddMinutes((int)minutesDelta);
 
                 case ClockHandType.Second:
                     // 6 градусов = 1 секунда
                     float secondsDelta = angleDelta / 6f;
-                    return startTime.AddSeconds(secondsDelta);
+                    return startTime.AddSeconds((int)secondsDelta);
 
                 default:
                     return startTime;

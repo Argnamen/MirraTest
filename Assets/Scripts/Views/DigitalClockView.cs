@@ -28,23 +28,29 @@ namespace ClockApp.Views
         public override void Initialize(ClockViewModel viewModel)
         {
             base.Initialize(viewModel);
+        }
 
+        private void OnEnable()
+        {
             StartAnim();
         }
 
         private void StartAnim()
         {
-            Vector3 startDatePos = dateContainer.transform.localPosition;
-            Vector3 startEditPos = editContainer.transform.localPosition;
+            Vector3 startDatePos = dateContainer.localPosition;
+            Vector3 startEditPos = editContainer.localPosition;
 
-            dateContainer.transform.localPosition = timeContainer.transform.localPosition;
-            editContainer.transform.localPosition = timeContainer.transform.localPosition;
+            Debug.Log(startDatePos);
 
-            baseContainer.transform.DORotate(Vector3.zero, 1f);
-            baseContainer.DOFade(1f, 0.8f);
+            dateContainer.localPosition = timeContainer.localPosition;
+            editContainer.localPosition = timeContainer.localPosition;
 
-            dateContainer.DOLocalMove(startDatePos, 1f);
-            editContainer.DOLocalMove(startEditPos, 1f);
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(baseContainer.transform.DORotate(new Vector3(0, 0, 105), 0.1f));
+            sequence.Append(baseContainer.transform.DORotate(Vector3.zero, 1f));
+            sequence.Join(baseContainer.DOFade(1f, 0.8f));
+            sequence.Join(dateContainer.DOLocalMoveY(startDatePos.y, 1f));
+            sequence.Join(editContainer.DOLocalMoveY(startEditPos.y, 1f));
         }
 
         protected override void OnTimeChanged(DateTime newTime)

@@ -25,6 +25,7 @@ namespace ClockApp.Views.Components
         private DateTime _startTime;
         private float _startHandAngle;
         private float _startPointerAngle;
+        private float _angleDelta = 0;
 
         public event Action<DateTime> OnTimeChanged;
         public event Action OnDragStarted;
@@ -41,7 +42,7 @@ namespace ClockApp.Views.Components
         {
             _viewModel = viewModel;
 
-            // Если камера не назначена, пробуем найти
+            // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (uiCamera == null)
             {
                 Canvas canvas = GetComponentInParent<Canvas>();
@@ -59,7 +60,7 @@ namespace ClockApp.Views.Components
         {
             if (_viewModel == null || !_viewModel.IsEditMode.Value) return;
 
-            // Сохраняем начальные значения
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             _startTime = _viewModel.CurrentTime.Value;
             _startHandAngle = GetCurrentHandAngle();
             _startPointerAngle = GetPointerAngle(eventData);
@@ -71,7 +72,7 @@ namespace ClockApp.Views.Components
 
             _isDragging = true;
 
-            // Обновляем начальные значения
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             _startTime = _viewModel.CurrentTime.Value;
             _startHandAngle = GetCurrentHandAngle();
             _startPointerAngle = GetPointerAngle(eventData);
@@ -85,32 +86,33 @@ namespace ClockApp.Views.Components
         {
             if (!_isDragging || _viewModel == null) return;
 
-            // Получаем текущий угол указателя
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             float currentPointerAngle = GetPointerAngle(eventData);
 
-            // Вычисляем разницу углов
-            float angleDelta = Mathf.DeltaAngle(_startPointerAngle, currentPointerAngle);
-
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (invertRotation)
-                angleDelta = -angleDelta;
+                _angleDelta -= Mathf.DeltaAngle(_startPointerAngle, currentPointerAngle);
 
-            // Новое время на основе изменения угла
-            DateTime newTime = CalculateTimeFromAngle(_startTime, angleDelta);
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+            DateTime newTime = CalculateTimeFromAngle(_startTime, _angleDelta);
 
-            if (newTime < _viewModel.CurrentTime.Value)
-            {
-                _startTime = _viewModel.CurrentTime.Value;
-                newTime = CalculateTimeFromAngle(_startTime, angleDelta);
-                _startPointerAngle = currentPointerAngle;
-            }
-
+            if(newTime.Hour != _viewModel.CurrentTime.Value.Hour ||
+                newTime.Minute != _viewModel.CurrentTime.Value.Minute)
+                    {
+                        _angleDelta = 0;
+                    }
+            
             _viewModel.SetTimeFromAnalog(newTime);
 
-            Debug.Log(newTime.ToString());
+            Debug.Log(_angleDelta);
 
-            // Обновляем ViewModel
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ ViewModel
 
             OnTimeChanged?.Invoke(newTime);
+
+            _startTime = newTime;
+
+            _startPointerAngle = currentPointerAngle;
         }
 
         public void OnEndDrag(PointerEventData eventData)
@@ -125,14 +127,14 @@ namespace ClockApp.Views.Components
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            // Дополнительная обработка
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         }
 
         private float GetPointerAngle(PointerEventData eventData)
         {
             Vector2 localPoint;
 
-            // Конвертируем позицию указателя в локальные координаты часов
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (clockFaceRect != null)
             {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -144,7 +146,7 @@ namespace ClockApp.Views.Components
             }
             else
             {
-                // Используем родительский RectTransform
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ RectTransform
                 RectTransform parentRect = transform.parent as RectTransform;
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     parentRect,
@@ -154,11 +156,11 @@ namespace ClockApp.Views.Components
                 );
             }
 
-            // Вычисляем угол от центра (pivot часов)
-            // Atan2(y, x) дает угол от оси X
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (pivot пїЅпїЅпїЅпїЅпїЅ)
+            // Atan2(y, x) пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ X
             float angle = Mathf.Atan2(localPoint.y, localPoint.x) * Mathf.Rad2Deg;
 
-            // Корректируем угол так, чтобы 0 был на 12 часах
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ 0 пїЅпїЅпїЅ пїЅпїЅ 12 пїЅпїЅпїЅпїЅпїЅ
             angle += 90f;
 
             return angle;
@@ -166,7 +168,7 @@ namespace ClockApp.Views.Components
 
         private float GetCurrentHandAngle()
         {
-            // Получаем текущий угол стрелки
+            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             float angle = -clockFaceRect.localEulerAngles.z;
             return angle;
         }
@@ -176,17 +178,17 @@ namespace ClockApp.Views.Components
             switch (handType)
             {
                 case ClockHandType.Hour:
-                    // 30 градусов = 1 час
+                    // 30 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 1 пїЅпїЅпїЅ
                     float hoursDelta = angleDelta / 30f;
                     return startTime.AddHours((int)hoursDelta);
 
                 case ClockHandType.Minute:
-                    // 6 градусов = 1 минута
+                    // 6 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 1 пїЅпїЅпїЅпїЅпїЅпїЅ
                     float minutesDelta = angleDelta / 6f;
                     return startTime.AddMinutes((int)minutesDelta);
 
                 case ClockHandType.Second:
-                    // 6 градусов = 1 секунда
+                    // 6 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ = 1 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                     float secondsDelta = angleDelta / 6f;
                     return startTime.AddSeconds((int)secondsDelta);
 

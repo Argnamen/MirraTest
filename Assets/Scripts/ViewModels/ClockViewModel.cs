@@ -12,6 +12,7 @@ namespace ClockApp.ViewModels
         private readonly TimeModel _timeModel;
         private readonly ITimeService _timeService;
         private readonly TimeDataModel _timeDataModel;
+        private DateTime _saveTime;
         private float _accumulatedTime;
         private bool _isDragging;
 
@@ -108,10 +109,14 @@ namespace ClockApp.ViewModels
             if (isEditing)
             {
                 StartDragging();
+
+                _saveTime = CurrentTime.Value;
             }
             else
             {
                 StopDragging();
+
+                SetTime(_saveTime);
             }
         }
 
@@ -124,7 +129,7 @@ namespace ClockApp.ViewModels
 
         public void SetTimeFromDigital(DateTime newTime)
         {
-            SetTime(newTime);
+            _saveTime = newTime;
         }
 
         public void StartDragging()

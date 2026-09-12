@@ -42,7 +42,6 @@ namespace ClockApp.Views.Components
         {
             _viewModel = viewModel;
 
-            // ���� ������ �� ���������, ������� �����
             if (uiCamera == null)
             {
                 Canvas canvas = GetComponentInParent<Canvas>();
@@ -60,7 +59,6 @@ namespace ClockApp.Views.Components
         {
             if (_viewModel == null || !_viewModel.IsEditMode.Value) return;
 
-            // ��������� ��������� ��������
             _startTime = _viewModel.CurrentTime.Value;
             _startHandAngle = GetCurrentHandAngle();
             _startPointerAngle = GetPointerAngle(eventData);
@@ -72,7 +70,6 @@ namespace ClockApp.Views.Components
 
             _isDragging = true;
 
-            // ��������� ��������� ��������
             _startTime = _viewModel.CurrentTime.Value;
             _startHandAngle = GetCurrentHandAngle();
             _startPointerAngle = GetPointerAngle(eventData);
@@ -86,14 +83,11 @@ namespace ClockApp.Views.Components
         {
             if (!_isDragging || _viewModel == null) return;
 
-            // �������� ������� ���� ���������
             float currentPointerAngle = GetPointerAngle(eventData);
 
-            // ��������� ������� �����
             if (invertRotation)
                 _angleDelta -= Mathf.DeltaAngle(_startPointerAngle, currentPointerAngle);
 
-            // ����� ����� �� ������ ��������� ����
             DateTime newTime = CalculateTimeFromAngle(_startTime, _angleDelta);
 
             if(newTime.Hour != _viewModel.CurrentTime.Value.Hour ||
@@ -105,8 +99,6 @@ namespace ClockApp.Views.Components
             _viewModel.SetTimeFromAnalog(newTime);
 
             Debug.Log(_angleDelta);
-
-            // ��������� ViewModel
 
             OnTimeChanged?.Invoke(newTime);
 
@@ -125,16 +117,10 @@ namespace ClockApp.Views.Components
             OnDragEnded?.Invoke();
         }
 
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            // �������������� ���������
-        }
-
         private float GetPointerAngle(PointerEventData eventData)
         {
             Vector2 localPoint;
 
-            // ������������ ������� ��������� � ��������� ���������� �����
             if (clockFaceRect != null)
             {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -156,11 +142,8 @@ namespace ClockApp.Views.Components
                 );
             }
 
-            // ��������� ���� �� ������ (pivot �����)
-            // Atan2(y, x) ���� ���� �� ��� X
             float angle = Mathf.Atan2(localPoint.y, localPoint.x) * Mathf.Rad2Deg;
 
-            // ������������ ���� ���, ����� 0 ��� �� 12 �����
             angle += 90f;
 
             return angle;
@@ -168,7 +151,6 @@ namespace ClockApp.Views.Components
 
         private float GetCurrentHandAngle()
         {
-            // �������� ������� ���� �������
             float angle = -clockFaceRect.localEulerAngles.z;
             return angle;
         }
@@ -178,23 +160,25 @@ namespace ClockApp.Views.Components
             switch (handType)
             {
                 case ClockHandType.Hour:
-                    // 30 �������� = 1 ���
                     float hoursDelta = angleDelta / 30f;
                     return startTime.AddHours((int)hoursDelta);
 
                 case ClockHandType.Minute:
-                    // 6 �������� = 1 ������
                     float minutesDelta = angleDelta / 6f;
                     return startTime.AddMinutes((int)minutesDelta);
 
                 case ClockHandType.Second:
-                    // 6 �������� = 1 �������
                     float secondsDelta = angleDelta / 6f;
                     return startTime.AddSeconds((int)secondsDelta);
 
                 default:
                     return startTime;
             }
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+
         }
     }
 }

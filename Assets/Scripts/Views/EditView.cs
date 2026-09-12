@@ -4,6 +4,7 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -20,11 +21,23 @@ namespace Clock.App.View
         [SerializeField] private Button saveButton;
         [SerializeField] private Button cancelButton;
 
+        [SerializeField] private TMP_InputField timeInput;
+        [SerializeField] private TMP_InputField dateInput;
+
+        private DateTime _newTime;
+
+        private bool _isEditing = false;
+
         [Inject]
         public void Construct(ClockViewModel viewModel)
         {
             Initialize(viewModel);
             SetupUI();
+
+            timeInput.onValueChanged.AddListener(EditTime);
+            dateInput.onValueChanged.AddListener(EditDate);
+
+            _newTime = ViewModel.CurrentTime.Value;
         }
 
         private void SetupUI()
@@ -68,34 +81,17 @@ namespace Clock.App.View
 
         private void OnEditClicked()
         {
-            ViewModel.SetEditMode(true);
+            _isEditing = !_isEditing;
+            ViewModel.SetEditMode(_isEditing);
         }
 
         private void OnSaveClicked()
         {
-            if (TryParseTime(out DateTime newTime))
-            {
-                // Используем метод для синхронизации с аналоговыми часами
-                ViewModel.SetTimeFromDigital(newTime);
-                ViewModel.SetEditMode(false);
-            }
-        }
+            // Используем метод для синхронизации с аналоговыми часами
+            ViewModel.SetTimeFromDigital(_newTime);
+            ViewModel.SetEditMode(false);
 
-        private bool TryParseTime(out DateTime time)
-        {
-            time = default;
-
-            if (int.TryParse(hoursInput.text, out int hours) &&
-                int.TryParse(minutesInput.text, out int minutes))
-            {
-                if (hours >= 0 && hours < 24 && minutes >= 0 && minutes < 60)
-                {
-                    time = ViewModel.CurrentTime.Value.Date.AddHours(hours).AddMinutes(minutes);
-                    return true;
-                }
-            }
-
-            return false;
+            _isEditing = false;
         }
 
         private void OnCancelClicked()
@@ -103,6 +99,8 @@ namespace Clock.App.View
             ViewModel.SetEditMode(false);
             // Восстанавливаем текущее время
             OnTimeChanged(ViewModel.CurrentTime.Value);
+
+            _isEditing = false;
         }
 
         private void OnInputEndEdit(string value)
@@ -128,10 +126,110 @@ namespace Clock.App.View
             }
         }
 
+        private void EditTime(string text)
+        {
+            if (text == "")
+                return;
+
+            text = text.Replace(":", "");
+
+            if (text.Length % 2 != 0)
+                text += "0";
+
+            if (text.Length > 6)
+                text = text[0..6];
+
+            string date = default;
+
+            if (text.Length < 3)
+            {
+                date = $"00:00:{text}";
+            }
+            else if(text.Length < 5)
+            {
+                date = $"00:{text[0..2]}:{text[2..(text.Length)]}";
+            }
+            else
+            {
+                date = $"{text[0..2]}:{text[2..4]}:{text[4..text.Length]}";
+            }
+
+            date = TryParseTime(date);
+
+            SaveTime(date);
+
+            timeInput.SetTextWithoutNotify(date);
+
+        }
+
+        private void EditDate(string text)
+        {
+            if (text == "")
+                return;
+
+            text = text.Replace(".", "");
+
+            if (text.Length > 8)
+                text = text[0..8];
+
+            string date = default;
+
+            if (text.Length < 3)
+            {
+                date = $"00.00.{text}";
+            }
+            else if (text.Length < 5)
+            {
+                date = $"00.{text[0..2]}.{text[2..(text.Length)]}";
+            }
+            else
+            {
+                date = $"{text[0..2]}.{text[2..4]}.{text[4..text.Length]}";
+            }
+
+            SaveDate(date);
+
+            dateInput.SetTextWithoutNotify(date);
+
+        }
+
+        private void SaveTime(string newTime)
+        {
+            var time = DateTime.Parse(newTime);
+            _newTime = new DateTime(_newTime.Year, _newTime.Month, _newTime.Day, time.Hour, time.Minute, time.Second);
+        }
+
+        private void SaveDate(string newDate)
+        {
+            var time = DateTime.Parse(newDate);
+            _newTime = new DateTime(time.Year, time.Month, time.Day, _newTime.Hour, _newTime.Minute, _newTime.Second);
+        }
+
+        private string TryParseTime(string time)
+        {
+            var date = time;
+            var second = Convert.ToInt32(date[6..date.Length]);
+
+            if (second < 0 || second > 59)
+                date = $"{date[0..5]}:00";
+
+            var minute = Convert.ToInt32(date[3..5]);
+
+            if (minute < 0 || minute > 59)
+                date = $"{date[0..2]}:00:{date[7..date.Length]}";
+
+            var hour = Convert.ToInt32(date[0..2]);
+
+            if (hour < 0 || hour > 23)
+                date = $"00:{date[3..date.Length]}";
+
+            return date;
+        }
+
         private void OpenAnimate()
         {
             Sequence sequence = DOTween.Sequence();
-            sequence.AppendCallback(() => editButton.gameObject.SetActive(false));
+            //sequence.AppendCallback(() => editButton.gameObject.SetActive(false));
             sequence.AppendCallback(() => editPanel.gameObject.SetActive(true));
             sequence.Append(timeFaceImage.DOFade(0, 1f));
             sequence.Join(timeFaceImage.transform.DOScale(5f, 2f));
@@ -145,7 +243,7 @@ namespace Clock.App.View
             Sequence sequence = DOTween.Sequence();
             sequence.Append(editPanel.DOFade(0, 0.5f));
             sequence.AppendCallback(() => editPanel.gameObject.SetActive(false));
-            sequence.AppendCallback(() => editButton.gameObject.SetActive(true));
+            //sequence.AppendCallback(() => editButton.gameObject.SetActive(true));
         }
     }
 }

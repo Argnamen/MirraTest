@@ -13,16 +13,19 @@ namespace ClockApp
         private readonly AnalogClockView _analogClockView;
         private readonly DigitalClockView _digitalClockView;
         private readonly EditView _editView;
+        private readonly TrainView _trainView;
         public MainController(
             ClockViewModel viewModel,
             AnalogClockView analogClockView,
             DigitalClockView digitalClockView,
-            EditView editView)
+            EditView editView,
+            TrainView trainView)
         {
             _viewModel = viewModel;
             _analogClockView = analogClockView;
             _digitalClockView = digitalClockView;
             _editView = editView;
+            _trainView = trainView;
         }
 
         public void Initialize()
@@ -30,6 +33,7 @@ namespace ClockApp
             _analogClockView.Initialize(_viewModel);
             _digitalClockView.Initialize(_viewModel);
             _editView.Initialize(_viewModel);
+            _trainView.Initialize(_viewModel);
 
             // ViewModel инициализируется автоматически через Zenject
         }

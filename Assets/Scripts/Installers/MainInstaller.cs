@@ -16,6 +16,7 @@ namespace ClockApp.Installers
         [SerializeField] private AnalogClockView analogClockView;
         [SerializeField] private DigitalClockView digitalClockView;
         [SerializeField] private EditView editView;
+        [SerializeField] private TrainView trainView;
 
         public override void InstallBindings()
         {
@@ -57,6 +58,11 @@ namespace ClockApp.Installers
 
             Container.BindInterfacesAndSelfTo<EditView>()
                 .FromInstance(editView)
+                .AsSingle()
+                .NonLazy();
+
+            Container.BindInterfacesAndSelfTo<TrainView>()
+                .FromInstance(trainView)
                 .AsSingle()
                 .NonLazy();
         }
